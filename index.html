@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" type="text/css" href="style/reset.css">
+	<link rel="stylesheet" type="text/css" href="style/style.css">
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans:600&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans:400&display=swap" rel="stylesheet">
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<script src="//api.bitrix24.com/api/v1/"></script>
+	<script src="js/script.js"></script>
+	<title></title>
+</head>
+
+<body>
+	<div class="header">
+		<button OnClick="getTable(dayStart, dayFinish, 1)">День</button>
+		<button OnClick="getTable(weekStart, dayFinish, 5)">Неделя</button>
+		<button OnClick="getTable(mounthStart, dayFinish, 21)">Месяц</button>
+		<button OnClick="getTable(Date.parse(document.getElementById('d').value), Date.parse(document.getElementById('d1').value) + 1000*60*60*24 - 1)">Период</button>
+		<input type="date" id="d">
+		<h6>-</h6>
+		<input type="date" id="d1">
+		<select id="typeOfCall">
+			<option>Исходящие</option>
+			<option>Входящие</option>
+			<option>Все</option>
+		</select>
+			<button onclick="myFunction()" class="dropbtn">Настройки</button>
+			<div id="myDropdown" class="dropdown-content">
+				<button OnClick="selectUsersToList()" id="selectUser" style="display: none">Выбор пользователей</button><br>
+				<button OnClick="editMode()" id="setting" style="display: none">Задать план</button><br>
+				<button OnClick="window.print()" id="prnt" style="display: none">Печать</button>
+			</div>
+	</div>
+
+	<div class="tHead"></div>
+	<script type="text/javascript">
+		function myFunction() {
+			document.getElementById("myDropdown").classList.toggle("show");
+		}
+
+		// Close the dropdown menu if the user clicks outside of it
+		window.onclick = function(event) {
+			if (!event.target.matches('.dropbtn')) {
+
+				var dropdowns = document.getElementsByClassName("dropdown-content");
+				var i;
+				for (i = 0; i < dropdowns.length; i++) {
+					var openDropdown = dropdowns[i];
+					if (openDropdown.classList.contains('show')) {
+						openDropdown.classList.remove('show');
+					}
+				}
+			}
+		}
+
+
+
+		$(document).on('click', '.edit', function(event) {
+			let cell = event.target;
+			if (cell.tagName.toLowerCase() != 'td') return;
+			let i = cell.parentNode.rowIndex;
+			let edit = document.getElementById('tb').rows[i].cells[3];
+			if (isNaN($(this).text())) edit.innerHTML = 0;
+			edit.style = "font-weight: 700; color: black; background-color: #dfdfdf"
+		});
+
+		$(document).on("focusout", ".edit", function(event) {
+			let cell = event.target;
+			if (cell.tagName.toLowerCase() != 'td') return;
+			let i = cell.parentNode.rowIndex;
+			let edit = document.getElementById('tb').rows[i].cells[3];
+			let id = document.getElementById('tb').rows[i].cells[0].innerHTML;
+			edit.style = "font-weight: 400; color: #525C6D; font-weight: 300"
+			if (isNaN($(this).text())) {
+				edit.innerHTML = "Введите число!";
+				edit.style = "color: red;";
+			} else {
+				let value = $(this).text();
+				setPlan(id, value);
+			}
+		});
+		var selectUsersList = "";
+		var defaultUsersList = [];
+		getDefaultUsersList();
+		var callsList = [];
+		var today = new Date();
+		setCurrentDate();
+		setMonthStart();
+		var dayStart = today.setHours(0, 0, 0, 0);
+		var dayFinish = dayStart + 1000 * 60 * 60 * 24;
+		if (today.getDay() == 5) {
+			var week = dayStart - (6 * 1000 * 60 * 60 * 24);
+		}
+		var weekStart = dayStart - ((today.getDay() - 1) * 1000 * 60 * 60 * 24);
+		var mounthStart = today.setDate(1);
+		checkAccess();
+	</script>
+
+</body>
+
+</html>
